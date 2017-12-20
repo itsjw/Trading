@@ -13,12 +13,11 @@ class PointsTableSeeder extends Seeder
      */
     public function run()
     {
-        $startDate = Carbon::today()->subWeek();
-        $diffInDays = Carbon::today()->diffInDays($startDate);
+        $day = Carbon::today();
 
-        for ($i = 0; $i < $diffInDays; $i++) {
-            CoinDeskService::getPriceOfDay($startDate);
-            $startDate->addDay();
+        for ($i = 0; $i < 8; $i++) {
+            CoinDeskService::getPricesOfDay($day);
+            $day->subDay();
         }
     }
 }
