@@ -15,7 +15,7 @@ use GuzzleHttp\Client;
 
 class CoinDeskService
 {
-    public static function getPriceOfDay($day)
+    public static function getPricesOfDay($day)
     {
         $start = $day->toDateString();
         $end = Carbon::create($day->year, $day->month, $day->day + 1)->toDateString();
