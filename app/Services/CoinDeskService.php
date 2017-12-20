@@ -17,8 +17,8 @@ class CoinDeskService
 {
     public static function getPriceOfDay($day)
     {
-        $start = Carbon::create($day->year, $day->month, $day->day - 1)->toDateString();
-        $end = $day->toDateString();
+        $start = $day->toDateString();
+        $end = Carbon::create($day->year, $day->month, $day->day + 1)->toDateString();
 
         $client = new Client();
         $request = $client->request('GET', 'https://api.coindesk.com/charts/data?data=close&exchanges=bpi&dev=1&index=USD&startdate=' . $start . '&enddate=' . $end);
