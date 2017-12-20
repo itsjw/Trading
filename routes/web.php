@@ -12,9 +12,13 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('simulation.index');
+});
+
+Route::get('/home', function () {
+    return redirect()->route('simulation.index');
 });
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/simulation', 'SimulationController@index')->name('simulation.index')->middleware('auth');
