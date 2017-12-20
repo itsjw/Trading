@@ -75,6 +75,8 @@
     </div>
 
     <!-- Scripts -->
+    <script src="{{ asset('js/chart.min.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
+    @yield('javascript')
 </body>
 </html>
