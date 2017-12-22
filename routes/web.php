@@ -22,3 +22,4 @@ Route::get('/home', function () {
 Auth::routes();
 
 Route::get('/simulation', 'SimulationController@index')->name('simulation.index')->middleware('auth');
+Route::get('/coinbase/dashboard', 'CoinbaseController@dashboard')->name('coinbase.dashboard')->middleware('auth');
