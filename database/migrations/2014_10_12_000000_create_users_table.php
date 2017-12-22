@@ -20,6 +20,10 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+
+            $table->integer('objective')->default(50);
+            $table->integer('alert')->default(-10);
+            $table->boolean('notification')->default(true);
         });
     }
 

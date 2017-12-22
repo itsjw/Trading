@@ -36,7 +36,8 @@
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
-                        &nbsp;
+                        <li><a href="{{ route('coinbase.dashboard') }}">Dasboard</a></li>
+                        <li><a href="{{ route('simulation.index') }}">Simulation</a></li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -52,6 +53,7 @@
                                 </a>
 
                                 <ul class="dropdown-menu">
+                                    <li><a href="{{ route('user.edit', Auth::user()) }}">Edit</a></li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
