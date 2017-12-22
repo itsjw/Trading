@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CheckCoinbaseAccountCommand;
 use App\Console\Commands\CoinbaseMoneyCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -15,6 +16,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         CoinbaseMoneyCommand::class,
+        CheckCoinbaseAccountCommand::class,
     ];
 
     /**
@@ -26,6 +28,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('coinbase:price:update')
+            ->everyMinute();
+
+        $schedule->command('coinbase:account:check')
             ->everyMinute();
     }
 

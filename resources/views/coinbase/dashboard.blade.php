@@ -177,6 +177,7 @@
                     $("#nativeBalanceAmount").removeClass().text(response.nativeBalanceAmount);
                     $("#nativeBalanceCurrency").removeClass().text(response.nativeBalanceCurrency);
                     updateChartDelta();
+                    updateStatus();
                 },
                 error: function (error) {
                     $("#nativeBalanceAmount").attr('class', 'text-danger').text("Error");
@@ -233,11 +234,11 @@
             $("#statusValue").text("(" + delta.toString().substr(0, 4) + ")");
 
             if (delta >= userObjective) {
-                $("#status").attr('class', 'text-success').text("Perfect !");
+                $("#status").removeClass().attr('class', 'text-success').text("Perfect !");
             } else if (delta < userObjective && delta > userAlert) {
-                $("#status").attr('class', 'text-success').text("Normal");
+                $("#status").removeClass().text("Normal");
             } else if (delta <= userAlert) {
-                $("#status").attr('class', 'text-danger').text("Bad !");
+                $("#status").removeClass().attr('class', 'text-danger').text("Bad !");
             }
         }
     </script>

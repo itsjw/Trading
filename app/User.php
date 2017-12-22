@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'notification', 'objective', 'alert'
+        'name', 'email', 'password', 'notification', 'objective', 'alert',
     ];
 
     /**
@@ -26,4 +26,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function routeNotificationForSlack()
+    {
+        return 'https://hooks.slack.com/services/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';
+    }
 }
