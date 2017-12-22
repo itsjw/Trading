@@ -22,6 +22,10 @@ Route::get('/home', function () {
 Auth::routes();
 
 Route::get('/simulation', 'SimulationController@index')->name('simulation.index')->middleware('auth');
+
+Route::get('/users/{user}', 'UserController@edit')->name('user.edit')->middleware('auth');
+Route::post('/users/{user}', 'UserController@update')->name('user.update')->middleware('auth');
+
 Route::get('/coinbase/dashboard', 'CoinbaseController@dashboard')->name('coinbase.dashboard')->middleware('auth');
 
 Route::get('/coinbase/primaryaccount', 'CoinbaseController@primaryAccount')->name('coinbase.primaryaccount');

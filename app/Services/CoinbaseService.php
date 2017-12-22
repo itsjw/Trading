@@ -13,6 +13,7 @@ use Coinbase\Wallet\Client;
 use Coinbase\Wallet\Configuration;
 use Coinbase\Wallet\Resource\Account;
 use Coinbase\Wallet\Value\Money;
+use Illuminate\Support\Facades\Auth;
 
 class CoinbaseService
 {

@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Money;
 use App\Services\CoinbaseService;
+use Illuminate\Support\Facades\Auth;
 
 class CoinbaseController extends Controller
 {
 
     public function dashboard()
     {
-        return view('coinbase.dashboard');
+        $userObjective = Auth::user()->objective;
+        $userAlert = Auth::user()->alert;
+
+        return view('coinbase.dashboard', compact('userObjective', 'userAlert'));
     }
 
     public function primaryAccount(CoinbaseService $coinbaseService)

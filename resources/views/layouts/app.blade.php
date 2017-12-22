@@ -53,6 +53,7 @@
                                 </a>
 
                                 <ul class="dropdown-menu">
+                                    <li><a href="{{ route('user.edit', Auth::user()) }}">Edit</a></li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();

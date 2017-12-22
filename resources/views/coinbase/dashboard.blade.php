@@ -2,6 +2,9 @@
 
 @section('content')
 
+    <input id="userObjective" type="text" value="{{ $userObjective }}" hidden>
+    <input id="userAlert" type="text" value="{{ $userAlert }}" hidden>
+
     <div class="container">
 
         <div class="row">
@@ -22,6 +25,11 @@
                             <span id="nativeBalanceAmount" style="font-size: 25px;">Loading ...</span>
                             <span id="nativeBalanceCurrency" style="font-size: 25px;"></span>
                             <p>NATIVE BALANCE</p>
+                        </div>
+                        <div class="text-center">
+                            <span id="status" style="font-size: 25px;"></span>
+                            <span id="statusValue" style="font-size: 13px;"></span>
+                            <p>STATUS</p>
                         </div>
                     </div>
                 </div>
@@ -59,6 +67,8 @@
 
         var lastBuyAmount = 0;
         var nativeBalanceAmount = 0;
+        var userObjective = $("#userObjective").val();
+        var userAlert = $("#userAlert").val();
 
         getPrimaryAccount();
         getLastBuy();
@@ -185,6 +195,7 @@
                     $("#lastBuyAmount").removeClass().text(response.amount);
                     $("#lastBuyCurrency").removeClass().text(response.currency);
                     updateChartDelta();
+                    updateStatus();
                 },
                 error: function (error) {
                     $("#lastBuyAmount").attr('class', 'text-danger').text("Error");
@@ -213,8 +224,21 @@
             var delta = nativeBalanceAmount - lastBuyAmount;
             chartDelta.data.labels = [new Date().toTimeString().substr(0, 8)];
             chartDelta.data.datasets[0].data = [delta];
-            chartDelta.data.datasets[1].data = [delta > 0 ? 50 - delta : 50];
+            chartDelta.data.datasets[1].data = [delta > 0 ? userObjective - delta : userObjective];
             chartDelta.update();
+        }
+
+        function updateStatus() {
+            var delta = nativeBalanceAmount - lastBuyAmount;
+            $("#statusValue").text("(" + delta.toString().substr(0, 4) + ")");
+
+            if (delta >= userObjective) {
+                $("#status").attr('class', 'text-success').text("Perfect !");
+            } else if (delta < userObjective && delta > userAlert) {
+                $("#status").attr('class', 'text-success').text("Normal");
+            } else if (delta <= userAlert) {
+                $("#status").attr('class', 'text-danger').text("Bad !");
+            }
         }
     </script>
 @endsection
