@@ -20,8 +20,18 @@ class Money extends Model
         $now = Carbon::now();
 
         return $query
-            ->where('date', '>=', Carbon::create($now->year, $now->month, $now->day, $now->hour, 0, 0))
-            ->where('date', '<=', Carbon::create($now->year, $now->month, $now->day, $now->hour, 59, 59))
+            ->where('date', '>=', Carbon::create($now->year, $now->month, $now->day, $now->hour - 1, $now->minute, $now->second))
+            ->where('date', '<=', Carbon::create($now->year, $now->month, $now->day, $now->hour, $now->minute, $now->second))
+            ->orderBy('date', 'asc');
+    }
+
+    public function scopeDay($query)
+    {
+        $now = Carbon::now();
+
+        return $query
+            ->where('date', '>=', Carbon::create($now->year, $now->month, $now->day - 1, $now->hour, $now->minute, $now->second))
+            ->where('date', '<=', Carbon::create($now->year, $now->month, $now->day, $now->hour, $now->minute, $now->second))
             ->orderBy('date', 'asc');
     }
 

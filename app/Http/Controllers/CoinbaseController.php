@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Money;
 use App\Notifications\ObjectiveReached;
 use App\Services\CoinbaseService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Mockery\Exception\RuntimeException;
 
 class CoinbaseController extends Controller
 {
@@ -14,9 +16,8 @@ class CoinbaseController extends Controller
     {
         $user = Auth::user();
         $userObjective = $user->objective;
-        $userAlert = $user->alert;
 
-        return view('coinbase.dashboard', compact('userObjective', 'userAlert'));
+        return view('coinbase.dashboard', compact('userObjective'));
     }
 
     public function primaryAccount(CoinbaseService $coinbaseService)
@@ -24,18 +25,10 @@ class CoinbaseController extends Controller
         $primaryAccount = $coinbaseService->getPrimaryAccount();
 
         return response()->json([
+            'balanceAmount'   => $primaryAccount->getBalance()->getAmount(),
+            'balanceCurrency'   => $primaryAccount->getBalance()->getCurrency(),
             'nativeBalanceAmount'   => $primaryAccount->getNativeBalance()->getAmount(),
             'nativeBalanceCurrency' => $primaryAccount->getNativeBalance()->getCurrency(),
-        ]);
-    }
-
-    public function spotPrice(CoinbaseService $coinbaseService)
-    {
-        $spotPrice = $coinbaseService->getSpotPrice(CoinbaseService::BTC_EUR);
-
-        return response()->json([
-            'amount'   => $spotPrice->getAmount(),
-            'currency' => $spotPrice->getCurrency(),
         ]);
     }
 
@@ -49,21 +42,17 @@ class CoinbaseController extends Controller
         ]);
     }
 
-    public function buyPrice(CoinbaseService $coinbaseService)
+    public function money(Request $request)
     {
-        $buyPrice = $coinbaseService->getbuyPrice($coinbaseService::BTC_EUR);
-
-        return response()->json([
-            'amount'   => $buyPrice->getAmount(),
-            'currency' => $buyPrice->getCurrency(),
-        ]);
-    }
-
-    public function money()
-    {
-        $sellMoney = Money::hour()->sell()->get();
-        $spotMoney = Money::hour()->spot()->get();
-        $buyMoney = Money::hour()->buy()->get();
+        if($request->get('interval') === 'day') {
+            $sellMoney = Money::day()->sell()->get();
+            $spotMoney = Money::day()->spot()->get();
+            $buyMoney = Money::day()->buy()->get();
+        } else {
+            $sellMoney = Money::hour()->sell()->get();
+            $spotMoney = Money::hour()->spot()->get();
+            $buyMoney = Money::hour()->buy()->get();
+        }
 
         return response()->json([
             'sell' => $sellMoney,
@@ -79,25 +68,6 @@ class CoinbaseController extends Controller
         return response()->json([
             'amount'   => $lastBuy->getTotal()->getAmount(),
             'currency' => $lastBuy->getTotal()->getCurrency(),
-        ]);
-    }
-
-    public function lastSell(CoinbaseService $coinbaseService)
-    {
-        $sells = collect($coinbaseService->getSellsPrimaryAccount()->all());
-
-        foreach ($sells as $sell) {
-            if ($sell->getStatus() === 'completed') {
-                return response()->json([
-                    'amount'   => $sell->getTotal()->getAmount(),
-                    'currency' => $sell->getTotal()->getCurrency(),
-                ]);
-            }
-        }
-
-        return response()->json([
-            'amount'   => -1,
-            'currency' => -1,
         ]);
     }
 }

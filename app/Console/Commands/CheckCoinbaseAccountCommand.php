@@ -47,6 +47,11 @@ class CheckCoinbaseAccountCommand extends Command
         }
 
         $nativeBalance = $coinbaseService->getPrimaryAccount()->getNativeBalance();
+
+        if ($nativeBalance == 0) {
+            return;
+        }
+
         $lastBuy = collect($coinbaseService->getBuysPrimaryAccount()->all())->first()->getTotal();
         $delta = $nativeBalance->getAmount() - $lastBuy->getAmount();
 
