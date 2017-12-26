@@ -3,55 +3,63 @@
 @section('content')
 
     <input id="userObjective" type="text" value="{{ $userObjective }}" hidden>
-    <input id="userAlert" type="text" value="{{ $userAlert }}" hidden>
 
     <div class="container">
-
         <div class="row">
             <div class="col-sm-12">
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <canvas id="chart"></canvas>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="btn-group btn-group-justified" role="group">
+                                    <div class="btn-group" role="group">
+                                        <button id="button-hour" type="button" class="btn btn-default" onclick="updateChart('hour')">Hour</button>
+                                    </div>
+                                    <div class="btn-group" role="group">
+                                        <button id="button-day" type="button" class="btn btn-default" onclick="updateChart('day')">Day</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <canvas id="chart" height="100"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-6">
                 <div class="panel panel-default">
+                    <div class="panel-heading">Wallet</div>
                     <div class="panel-body">
-                        <div class="text-center">
-                            <span id="nativeBalanceAmount" style="font-size: 25px;">Loading ...</span>
-                            <span id="nativeBalanceCurrency" style="font-size: 25px;"></span>
-                            <p>NATIVE BALANCE</p>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="text-center">
+                                    <span id="balanceAmount" style="font-size: 20px;">Loading ...</span>
+                                    <span id="balanceCurrency" style="font-size: 13px;"></span>
+                                    <p>WALLET</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <span id="status" style="font-size: 25px;"></span>
-                            <span id="statusValue" style="font-size: 13px;"></span>
-                            <p>STATUS</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <div class="text-center">
-                            <span id="lastBuyAmount" style="font-size: 25px;">Loading ...</span>
-                            <span id="lastBuyCurrency" style="font-size: 25px;"></span>
-                            <p>LAST BUY</p>
-                        </div>
-                        <div class="text-center">
-                            <span id="lastSellAmount" style="font-size: 25px;">Loading ...</span>
-                            <span id="lastSellCurrency" style="font-size: 25px;"></span>
-                            <p>LAST SELL</p>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="text-center">
+                                    <span id="bitcoinAmount" style="font-size: 20px;">Loading ...</span>
+                                    <p>BITCOIN</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6">
                 <div class="panel panel-default">
+                    <div class="panel-heading">Objective <span id="delta"></span></div>
                     <div class="panel-body">
                         <canvas id="chartDelta"></canvas>
                     </div>
@@ -65,48 +73,12 @@
 @section('javascript')
     <script type="text/javascript">
 
-        var lastBuyAmount = 0;
-        var nativeBalanceAmount = 0;
+        var fees = 2;
+        var bitcoinAmount = 0;
+        var sellPrice = 0;
+        var balance = 0;
+        var lastBuy = 0;
         var userObjective = $("#userObjective").val();
-        var userAlert = $("#userAlert").val();
-
-        getPrimaryAccount();
-        getLastBuy();
-        updateChart();
-        getLastSell();
-
-        setInterval(function () {
-            getPrimaryAccount();
-            getLastBuy();
-            getLastSell();
-            updateChart();
-            updateChartDelta();
-        }, 10000);
-
-        var ctxChart = document.getElementById("chart").getContext('2d');
-        var chart = new Chart(ctxChart, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: "Spot",
-                    borderColor: 'rgba(52, 152, 219, 0.7)',
-                    fill: false,
-                    data: []
-                }, {
-                    label: "Sell",
-                    borderColor: 'rgba(231, 76, 60, 0.7)',
-                    fill: false,
-                    data: []
-                }, {
-                    label: "Buy",
-                    borderColor: 'rgba(46, 204, 113, 0.7)',
-                    fill: false,
-                    data: []
-                }]
-            },
-            options: {}
-        });
 
         var ctxChartDelta = document.getElementById("chartDelta").getContext('2d');
         var chartDelta = new Chart(ctxChartDelta, {
@@ -136,9 +108,119 @@
             }
         });
 
-        function updateChart() {
+        var ctxChart = document.getElementById("chart").getContext('2d');
+        var chart = new Chart(ctxChart, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Spot",
+                    borderColor: 'rgba(52, 152, 219, 0.7)',
+                    fill: false,
+                    data: []
+                }, {
+                    label: "Sell",
+                    borderColor: 'rgba(231, 76, 60, 0.7)',
+                    fill: false,
+                    data: []
+                }, {
+                    label: "Buy",
+                    borderColor: 'rgba(46, 204, 113, 0.7)',
+                    fill: false,
+                    data: []
+                }]
+            },
+            options: {}
+        });
+
+        updateChart('hour');
+
+        getSellPrice();
+        getLastBuy();
+        getPrimaryAccount();
+
+        setInterval(function () {
+            updateChart('hour');
+        }, 1000 * 30);
+
+        setInterval(function () {
+            getSellPrice();
+            getLastBuy();
+            getPrimaryAccount();
+        }, 10000);
+
+        function getPrimaryAccount() {
             $.ajax({
-                url: './money',
+                url: './primaryaccount',
+                cache: false,
+                method: 'GET',
+                success: function (response) {
+                    updateBitcoinAmount(response.balanceAmount);
+                    updateBalance();
+                },
+                error: function (error) {
+                    updateBitcoinAmount("ERROR", "");
+                }
+            });
+        }
+
+        function getSellPrice() {
+            $.ajax({
+                url: './sellprice',
+                cache: false,
+                method: 'GET',
+                success: function (response) {
+                    updateSellPrice(response.amount);
+                    updateBalance();
+                },
+                error: function (error) {
+                    updateSellPrice("ERROR");
+                }
+            });
+        }
+
+        function getLastBuy() {
+            $.ajax({
+                url: './lastbuy',
+                cache: false,
+                method: 'GET',
+                success: function (response) {
+                    updateLastBuy(response.amount);
+                },
+                error: function (error) {
+                    updateLastBuy("ERROR", "");
+                }
+            });
+        }
+
+        function updateSellPrice(amount) {
+            sellPrice = amount;
+        }
+
+        function updateLastBuy(amount) {
+            lastBuy = amount;
+            updateChartDelta();
+        }
+
+        function updateBitcoinAmount(amount) {
+            bitcoinAmount = amount;
+            $("#bitcoinAmount").text(bitcoinAmount);
+        }
+
+        function updateBalance() {
+            balance = (bitcoinAmount * sellPrice) - fees;
+            updateChartDelta();
+            $("#balanceAmount").text(balance.toString().substr(0, 6));
+            $("#balanceCurrency").text("EUR");
+        }
+
+        function updateChart(interval) {
+            $("#button-day").removeClass().attr('class', 'btn btn-default');
+            $("#button-hour").removeClass().attr('class', 'btn btn-default');
+            $("#button-" + interval).removeClass().attr('class', 'btn btn-default active');
+
+            $.ajax({
+                url: './money?interval=' + interval,
                 cache: false,
                 method: 'GET',
                 success: function (response) {
@@ -167,79 +249,15 @@
             });
         }
 
-        function getPrimaryAccount() {
-            $.ajax({
-                url: './primaryaccount',
-                cache: false,
-                method: 'GET',
-                success: function (response) {
-                    nativeBalanceAmount = response.nativeBalanceAmount;
-                    $("#nativeBalanceAmount").removeClass().text(response.nativeBalanceAmount);
-                    $("#nativeBalanceCurrency").removeClass().text(response.nativeBalanceCurrency);
-                    updateChartDelta();
-                    updateStatus();
-                },
-                error: function (error) {
-                    $("#nativeBalanceAmount").attr('class', 'text-danger').text("Error");
-                    $("#nativeBalanceCurrency").text("");
-                }
-            });
-        }
-
-        function getLastBuy() {
-            $.ajax({
-                url: './lastbuy',
-                cache: false,
-                method: 'GET',
-                success: function (response) {
-                    lastBuyAmount = response.amount;
-                    $("#lastBuyAmount").removeClass().text(response.amount);
-                    $("#lastBuyCurrency").removeClass().text(response.currency);
-                    updateChartDelta();
-                    updateStatus();
-                },
-                error: function (error) {
-                    $("#lastBuyAmount").attr('class', 'text-danger').text("Error");
-                    $("#lastBuyCurrency").text("");
-                }
-            });
-        }
-
-        function getLastSell() {
-            $.ajax({
-                url: './lastsell',
-                cache: false,
-                method: 'GET',
-                success: function (response) {
-                    $("#lastSellAmount").removeClass().text(response.amount);
-                    $("#lastSellCurrency").removeClass().text(response.currency);
-                },
-                error: function (error) {
-                    $("#lastSellAmount").attr('class', 'text-danger').text("Error");
-                    $("#lastSellCurrency").text("");
-                }
-            });
-        }
-
         function updateChartDelta() {
-            var delta = nativeBalanceAmount - lastBuyAmount;
+            var delta = balance - lastBuy;
+            $("#delta").text(delta.toString().substr(0, 6));
+
             chartDelta.data.labels = [new Date().toTimeString().substr(0, 8)];
             chartDelta.data.datasets[0].data = [delta];
             chartDelta.data.datasets[1].data = [delta > 0 ? userObjective - delta : userObjective];
             chartDelta.update();
         }
 
-        function updateStatus() {
-            var delta = nativeBalanceAmount - lastBuyAmount;
-            $("#statusValue").text("(" + delta.toString().substr(0, 4) + ")");
-
-            if (delta >= userObjective) {
-                $("#status").removeClass().attr('class', 'text-success').text("Perfect !");
-            } else if (delta < userObjective && delta > userAlert) {
-                $("#status").removeClass().text("Normal");
-            } else if (delta <= userAlert) {
-                $("#status").removeClass().attr('class', 'text-danger').text("Bad !");
-            }
-        }
     </script>
 @endsection
