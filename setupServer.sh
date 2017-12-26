@@ -11,6 +11,7 @@ docker-compose --version
 git clone https://github.com/mmaheo/Trading.git
 cd Trading/laradock
 cp env-example .env
+docker-compose down
 docker-compose up -d nginx mysql
 cd ..
 chmod 777 ./setupProject.sh
