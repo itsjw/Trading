@@ -48,7 +48,7 @@ class CheckCoinbaseAccountCommand extends Command
 
         $nativeBalance = $coinbaseService->getPrimaryAccount()->getNativeBalance();
 
-        if ($nativeBalance == 0) {
+        if ($nativeBalance->getAmount() == 0) {
             return;
         }
 
@@ -57,10 +57,11 @@ class CheckCoinbaseAccountCommand extends Command
 
         $userObjective = $user->objective;
         $userAlert = $user->alert;
-
         if ($delta >= $userObjective) {
+            $this->info("Objective reached");
             $user->notify(new ObjectiveReached($delta, $nativeBalance->getCurrency()));
         } else if ($delta <= $userAlert) {
+            $this->info("Limit reached");
             $user->notify(new LimitReached($delta, $nativeBalance->getCurrency()));
         }
     }
