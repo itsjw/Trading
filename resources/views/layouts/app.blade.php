@@ -37,7 +37,6 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
                         <li><a href="{{ route('coinbase.dashboard') }}">Dasboard</a></li>
-                        <li><a href="{{ route('simulation.index') }}">Simulation</a></li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
