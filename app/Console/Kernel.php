@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\CheckCoinbaseAccountCommand;
 use App\Console\Commands\CoinbaseMoneyCommand;
+use App\User;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -30,8 +31,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('coinbase:price:update')
             ->everyMinute();
 
-        $schedule->command('coinbase:account:check')
-            ->everyFiveMinutes();
+        $user = User::all()->first();
+        if ($user === null) {
+            return;
+        }
+
+        if($user->notification) {
+            $schedule->command('coinbase:account:check')
+                ->everyFiveMinutes();
+        }
     }
 
     /**

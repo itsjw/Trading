@@ -12,16 +12,14 @@
 */
 
 Route::get('/', function () {
-    return redirect()->route('simulation.index');
+    return redirect()->route('coinbase.dashboard');
 });
 
 Route::get('/home', function () {
-    return redirect()->route('simulation.index');
+    return redirect()->route('coinbase.dashboard');
 });
 
 Auth::routes();
-
-Route::get('/simulation', 'SimulationController@index')->name('simulation.index')->middleware('auth');
 
 Route::get('/users/{user}', 'UserController@edit')->name('user.edit')->middleware('auth');
 Route::post('/users/{user}', 'UserController@update')->name('user.update')->middleware('auth');
